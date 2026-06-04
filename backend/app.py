@@ -26,20 +26,20 @@ app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'googlyaqua26@gmail.com'
-app.config['MAIL_PASSWORD'] ="gcrwpkstddrklkxn"
+app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
 
 
 mail=Mail(app)
 
 #cloudinary config
 cloudinary.config(
-    cloud_name="dhrbonrvv",
-    api_key="482186351593377",
-    api_secret="zo-R94XTrz-4iPBiDV5xx4SpnvE"
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
 )
 
 ADMIN_USERNAME = "googlyaqua"
-ADMIN_PASSWORD = "googlyaqua@26"
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD")
 
 
 class UserModel(db.Model):
