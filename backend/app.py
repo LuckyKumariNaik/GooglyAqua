@@ -109,7 +109,13 @@ def submit_lead():
 
     return redirect('/')
 
-
+@app.route('/admin/leads')
+def view_leads():
+    leads = UserModel.query.all()
+    result = ""
+    for lead in leads:
+        result += f"Name: {lead.name} | Phone: {lead.phone} | City: {lead.city} | Requirements: {lead.requirements}\n\n"
+    return f"<pre>{result}</pre>"
 #Review Route
 
 @app.route('/submit-review', methods=['POST'])
