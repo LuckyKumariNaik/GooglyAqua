@@ -79,6 +79,7 @@ def send_email_async(app, msg):
     with app.app_context():
         try:
             mail.send(msg)
+            print("Email sent successfully!")
         except Exception as e:
             print(f"Email failed: {e}")
 
