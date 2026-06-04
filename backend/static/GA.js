@@ -72,30 +72,3 @@ function closePopup(){
 
 }
 
-// FORM SUBMIT
-document.querySelectorAll(".popup form").forEach((form) => {
-
-  form.addEventListener("submit", async (e) => {
-
-    e.preventDefault();
-
-    const formData = new FormData(form);
-
-    const data = {
-      name: formData.get("name"),
-      phone: formData.get("phone"),
-      city: formData.get("city"),
-      requirement: formData.get("requirement")
-    };
-
-    console.log(data);
-
-    alert("Thank you for trusting us! We will contact you soon.");
-
-    form.reset();
-
-    closePopup();
-
-  });
-
-});

@@ -87,7 +87,7 @@ def submit_lead():
     msg = Message(
         subject='New Lead Received',
         sender=app.config['MAIL_USERNAME'],
-        recipients=['yourgmail@gmail.com']
+        recipients=['googlyaqua26@gmail.com']
     )
 
     msg.body = f"""
