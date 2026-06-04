@@ -1,0 +1,142 @@
+from flask import Flask, request, redirect, session, render_template
+import cloudinary
+import cloudinary.uploader
+
+from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail,Message
+import os
+
+
+app=Flask(__name__)
+
+
+#Database configuration
+
+DATABASE_URL="postgresql://googlyaqua_9dd0_user:befH1k50K5pNzptI37mPdmZznaonhRHQ@dpg-d8fg5bnavr4c73a88jp0-a.oregon-postgres.render.com/googlyaqua_9dd0"
+
+app.config['SQLALCHEMY_DATABASE_URI'] =DATABASE_URL
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+print(app.config.get('SQLALCHEMY_DATABASE_URI'))
+db=SQLAlchemy(app)
+
+app.config['SECRET_KEY'] =os.environ.get("SECRET_KEY")
+
+#Email config
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = 'googlyaqua26@gmail.com'
+app.config['MAIL_PASSWORD'] ="gcrwpkstddrklkxn"
+
+
+mail=Mail(app)
+
+#cloudinary config
+cloudinary.config(
+    cloud_name="dhrbonrvv",
+    api_key="482186351593377",
+    api_secret="zo-R94XTrz-4iPBiDV5xx4SpnvE"
+)
+
+ADMIN_USERNAME = "googlyaqua"
+ADMIN_PASSWORD = "googlyaqua@26"
+
+
+class UserModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(80), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    city = db.Column(db.String(100))
+    requirements = db.Column(db.Text)
+    def __repr__(self):
+      return f"ContactLead(name={self.name},phone={self.phone} city={self.city}, requirements={self.requirements})"
+
+class Review(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
+    name = db.Column(db.String(80), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    review_message = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(500))    
+
+
+    def __repr__(self):
+      return f"Review(name={self.name}, rating={self.rating})"
+
+
+
+@app.route('/')
+def home():
+    return render_template('googlyaquaa.html')
+    
+
+#lead route    
+@app.route('/submit-lead', methods=['POST'])
+def submit_lead():
+    lead = UserModel(
+        name=request.form.get('name'),
+        phone=request.form.get('phone'),
+        city=request.form.get('city'),
+        requirements=request.form.get('requirements')
+    )
+
+    db.session.add(lead)
+    db.session.commit()
+     #Send email here
+    msg = Message(
+        subject='New Lead Received',
+        sender=app.config['MAIL_USERNAME'],
+        recipients=['yourgmail@gmail.com']
+    )
+
+    msg.body = f"""
+Name: {lead.name}
+Phone: {lead.phone}
+City: {lead.city}
+
+Requirements:
+{lead.requirements}
+"""
+
+    mail.send(msg) 
+
+    return redirect('/')
+
+
+#Review Route
+
+@app.route('/submit-review', methods=['POST'])
+def submit_review():
+    name = request.form.get('name')
+    rating = request.form.get('rating')
+    message = request.form.get('message')
+    image_file = request.files.get('review_image')
+
+    image_url = None
+    if image_file and image_file.filename != '':
+        upload_result = cloudinary.uploader.upload(image_file)
+        image_url = upload_result.get('secure_url')
+
+    review = Review(
+        name=name,
+        rating=int(rating),
+        review_message=message,
+        image_url=image_url
+    )
+    db.session.add(review)
+    db.session.commit()
+
+    return redirect('/')
+
+#Check Reviews Route
+@app.route('/reviews')
+def show_reviews():
+    reviews = Review.query.all()
+    return str([(r.name, r.rating, r.review_message) for r in reviews])
+
+with app.app_context():
+   db.create_all()
+
+if __name__=="__main__":
+   app.run(debug=True)
