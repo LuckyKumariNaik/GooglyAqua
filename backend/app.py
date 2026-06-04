@@ -1,10 +1,11 @@
 from flask import Flask, request, redirect, session, render_template
 import cloudinary
 import cloudinary.uploader
-
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail,Message
 import os
+import threading
+import resend
 
 
 app=Flask(__name__)
