@@ -80,26 +80,20 @@ def submit_lead():
         city=request.form.get('city'),
         requirements=request.form.get('requirements')
     )
-
     db.session.add(lead)
     db.session.commit()
-     #Send email here
-    msg = Message(
-        subject='New Lead Received',
-        sender=app.config['MAIL_USERNAME'],
-        recipients=['googlyaqua26@gmail.com']
-    )
-
-    msg.body = f"""
-Name: {lead.name}
-Phone: {lead.phone}
-City: {lead.city}
-
-Requirements:
-{lead.requirements}
-"""
-
-    mail.send(msg) 
+    
+    # wrap email in try/except so it doesn't crash the app
+    try:
+        msg = Message(
+            subject='New Lead Received',
+            sender=app.config['MAIL_USERNAME'],
+            recipients=['googlyaqua26@gmail.com']
+        )
+        msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
+        mail.send(msg)
+    except Exception as e:
+        print(f"Email failed: {e}")
 
     return redirect('/')
 
