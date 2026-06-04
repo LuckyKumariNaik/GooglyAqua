@@ -116,10 +116,52 @@ def view_leads():
         return "Access Denied!", 403
     
     leads = UserModel.query.all()
-    result = ""
-    for lead in leads:
-        result += f"Name: {lead.name} | Phone: {lead.phone} | City: {lead.city} | Requirements: {lead.requirements}\n\n"
-    return f"<pre>{result}</pre>"
+    
+    html = """
+    <html>
+    <head>
+        <title>GooglyAqua - Leads</title>
+        <style>
+            body { font-family: Segoe UI; padding: 30px; background: #f5f7fb; }
+            h1 { color: #1e3c72; margin-bottom: 30px; }
+            table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+            th { background: #1e3c72; color: white; padding: 15px; text-align: left; }
+            td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+            tr:hover { background: #f0f4ff; }
+            .count { color: #555; margin-bottom: 20px; }
+        </style>
+    </head>
+    <body>
+        <h1>🌊 GooglyAqua Leads</h1>
+        <p class="count">Total Leads: """ + str(len(leads)) + """</p>
+        <table>
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>City</th>
+                <th>Requirements</th>
+            </tr>
+    """
+    
+    for i, lead in enumerate(leads, 1):
+        html += f"""
+            <tr>
+                <td>{i}</td>
+                <td>{lead.name}</td>
+                <td>{lead.phone}</td>
+                <td>{lead.city}</td>
+                <td>{lead.requirements}</td>
+            </tr>
+        """
+    
+    html += """
+        </table>
+    </body>
+    </html>
+    """
+    
+    return html
 #Review Route
 
 @app.route('/submit-review', methods=['POST'])
