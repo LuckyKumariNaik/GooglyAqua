@@ -187,6 +187,18 @@ def submit_review():
 
     return redirect('/')
 
+@app.route('/admin/delete-leads')
+def delete_leads():
+    password = request.args.get('password')
+    if password != os.environ.get("ADMIN_PASSWORD"):
+        return "Access Denied!", 403
+    UserModel.query.delete()
+    db.session.commit()
+    return "All leads deleted!"
+
+
+
+
 #Check Reviews Route
 @app.route('/reviews')
 def show_reviews():
