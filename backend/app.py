@@ -130,6 +130,14 @@ def show_reviews():
     reviews = Review.query.all()
     return str([(r.name, r.rating, r.review_message) for r in reviews])
 
+@app.route('/delete-all-reviews')
+def delete_all_reviews():
+    Review.query.delete()
+    db.session.commit()
+    return "All reviews deleted!"
+
+
+
 with app.app_context():
    db.create_all()
 
