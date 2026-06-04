@@ -68,7 +68,8 @@ class Review(db.Model):
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    reviews = Review.query.all()
+    return render_template('index.html',reviews=reviews)
     
 
 #lead route    

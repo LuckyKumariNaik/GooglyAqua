@@ -1300,16 +1300,20 @@
   <div class="review-container">
 
     <!-- REVIEW CARD 1 -->
-    <div class="review-card">
-      <img src="/static/customer1.jpg">
-      <h3>Rahul Sharma</h3>
-      <div class="stars">
-        ★★★★★
-      </div>
-      <p>
-        Amazing purifier quality and excellent service.
-      </p>
+    {% for review in reviews %}
+<div class="review-card">
+    {% if review.image_url %}
+    <img src="{{ review.image_url }}" alt="reviewer">
+    {% else %}
+    <img src="/static/customer1.jpg" alt="reviewer">
+    {% endif %}
+    <h3>{{ review.name }}</h3>
+    <div class="stars">
+        {% for i in range(review.rating) %}★{% endfor %}
     </div>
+    <p>{{ review.review_message }}</p>
+</div>
+{% endfor %}
 <!-- REVIEW FORM -->
   <div class="review-form">
     <h3>
