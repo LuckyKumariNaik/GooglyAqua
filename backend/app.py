@@ -94,15 +94,17 @@ def submit_lead():
     db.session.add(lead)
     db.session.commit()
 
-    msg = Message(
-        subject='New Lead Received',
-        sender=app.config['MAIL_USERNAME'],
-        recipients=['googlyaqua26@gmail.com']
-    )
-    msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
-    
-    thread = threading.Thread(target=send_email_async, args=(app, msg))
-    thread.start()
+    try:
+        msg = Message(
+            subject='New Lead Received',
+            sender=app.config['MAIL_USERNAME'],
+            recipients=['googlyaqua26@gmail.com']
+        )
+        msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
+        mail.send(msg)
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Email failed: {e}")
 
     return redirect('/')
 
