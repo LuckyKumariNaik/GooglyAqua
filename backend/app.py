@@ -73,6 +73,15 @@ def home():
     
 
 #lead route    
+import threading
+
+def send_email_async(app, msg):
+    with app.app_context():
+        try:
+            mail.send(msg)
+        except Exception as e:
+            print(f"Email failed: {e}")
+
 @app.route('/submit-lead', methods=['POST'])
 def submit_lead():
     lead = UserModel(
@@ -83,18 +92,16 @@ def submit_lead():
     )
     db.session.add(lead)
     db.session.commit()
+
+    msg = Message(
+        subject='New Lead Received',
+        sender=app.config['MAIL_USERNAME'],
+        recipients=['googlyaqua26@gmail.com']
+    )
+    msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
     
-    # wrap email in try/except so it doesn't crash the app
-    try:
-        msg = Message(
-            subject='New Lead Received',
-            sender=app.config['MAIL_USERNAME'],
-            recipients=['googlyaqua26@gmail.com']
-        )
-        msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
-        mail.send(msg)
-    except Exception as e:
-        print(f"Email failed: {e}")
+    thread = threading.Thread(target=send_email_async, args=(app, msg))
+    thread.start()
 
     return redirect('/')
 
