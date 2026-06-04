@@ -111,6 +111,10 @@ def submit_lead():
 
 @app.route('/admin/leads')
 def view_leads():
+    password = request.args.get('password')
+    if password != os.environ.get("ADMIN_PASSWORD"):
+        return "Access Denied!", 403
+    
     leads = UserModel.query.all()
     result = ""
     for lead in leads:
