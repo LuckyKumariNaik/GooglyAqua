@@ -12,7 +12,7 @@ app=Flask(__name__)
 
 #Database configuration
 
-DATABASE_URL="postgresql://googlyaqua_9dd0_user:befH1k50K5pNzptI37mPdmZznaonhRHQ@dpg-d8fg5bnavr4c73a88jp0-a.oregon-postgres.render.com/googlyaqua_9dd0"
+DATABASE_URL=os.environ.get("DATABASE_URL")
 
 app.config['SQLALCHEMY_DATABASE_URI'] =DATABASE_URL
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
