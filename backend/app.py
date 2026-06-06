@@ -115,6 +115,8 @@ def view_leads():
             td { padding: 12px 15px; border-bottom: 1px solid #eee; }
             tr:hover { background: #f0f4ff; }
             .count { color: #555; margin-bottom: 20px; }
+            .delete-btn { background: #e74c3c; color: white; border: none; padding: 6px 12px; border-radius: 5px; cursor: pointer; }
+            .delete-btn:hover { background: #c0392b; }
         </style>
     </head>
     <body>
@@ -127,6 +129,7 @@ def view_leads():
                 <th>Phone</th>
                 <th>City</th>
                 <th>Requirements</th>
+                <th>Action</th>
             </tr>
     """
     
@@ -138,6 +141,11 @@ def view_leads():
                 <td>{lead.phone}</td>
                 <td>{lead.city}</td>
                 <td>{lead.requirements}</td>
+                <td>
+                    <form method="POST" action="/admin/delete-lead/{lead.id}?password={request.args.get('password')}">
+                        <button class="delete-btn" type="submit">🗑 Delete</button>
+                    </form>
+                </td>
             </tr>
         """
     
@@ -148,6 +156,20 @@ def view_leads():
     """
     
     return html
+
+
+@app.route('/admin/delete-lead/<int:lead_id>', methods=['POST'])
+def delete_lead(lead_id):
+    password = request.args.get('password')
+    if password != os.environ.get("ADMIN_PASSWORD"):
+        return "Access Denied!", 403
+
+    lead = UserModel.query.get(lead_id)
+    if lead:
+        db.session.delete(lead)
+        db.session.commit()
+
+    return redirect(f'/admin/leads?password={password}')
 #Review Route
 
 @app.route('/submit-review', methods=['POST'])
