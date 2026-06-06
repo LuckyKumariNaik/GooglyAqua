@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail,Message
 import os
 import threading
-import resend
+
 
 
 app=Flask(__name__)
@@ -23,12 +23,13 @@ db=SQLAlchemy(app)
 app.config['SECRET_KEY'] =os.environ.get("SECRET_KEY")
 
 #Email config
-app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'googlyaqua26@gmail.com'
-app.config['MAIL_PASSWORD'] = os.environ.get("MAIL_PASSWORD")
-
+app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.resend.com')
+app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 465))
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USERNAME'] = 'resend'
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
 mail=Mail(app)
 
@@ -98,7 +99,7 @@ def submit_lead():
     try:
         msg = Message(
             subject='New Lead Received',
-            sender=app.config['MAIL_USERNAME'],
+            sender=app.config['MAIL_DEFAULT_SENDER'],  # ✅ fixed
             recipients=['googlyaqua26@gmail.com']
         )
         msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
@@ -108,6 +109,9 @@ def submit_lead():
         print(f"Email failed: {e}")
 
     return redirect('/')
+
+
+
 
 @app.route('/admin/leads')
 def view_leads():
