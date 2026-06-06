@@ -2,9 +2,9 @@ from flask import Flask, request, redirect, session, render_template
 import cloudinary
 import cloudinary.uploader
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail,Message
 import os
 import threading
+import resend
 
 
 
@@ -22,16 +22,11 @@ db=SQLAlchemy(app)
 
 app.config['SECRET_KEY'] =os.environ.get("SECRET_KEY")
 
-#Email config
-app.config['MAIL_SERVER'] = os.environ.get('MAIL_SERVER', 'smtp.resend.com')
-app.config['MAIL_PORT'] = int(os.environ.get('MAIL_PORT', 465))
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USERNAME'] = 'resend'
-app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
-app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_DEFAULT_SENDER')
 
-mail=Mail(app)
+resend.api_key = os.environ.get("RESEND_API_KEY") 
+
+#Email config
+
 
 #cloudinary config
 cloudinary.config(
@@ -74,16 +69,7 @@ def home():
     return render_template('index.html',reviews=reviews)
     
 
-#lead route    
-import threading
 
-def send_email_async(app, msg):
-    with app.app_context():
-        try:
-            mail.send(msg)
-            print("Email sent successfully!")
-        except Exception as e:
-            print(f"Email failed: {e}")
 
 @app.route('/submit-lead', methods=['POST'])
 def submit_lead():
@@ -97,21 +83,17 @@ def submit_lead():
     db.session.commit()
 
     try:
-        msg = Message(
-            subject='New Lead Received',
-            sender=app.config['MAIL_DEFAULT_SENDER'],  # ✅ fixed
-            recipients=['googlyaqua26@gmail.com']
-        )
-        msg.body = f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
-        mail.send(msg)
+        resend.Emails.send({
+            "from": "no-reply@googlyaqua.com",  # replace with your verified domain
+            "to": "googlyaqua26@gmail.com",
+            "subject": "New Lead Received",
+            "text": f"Name: {lead.name}\nPhone: {lead.phone}\nCity: {lead.city}\nRequirements: {lead.requirements}"
+        })
         print("Email sent successfully!")
     except Exception as e:
         print(f"Email failed: {e}")
 
     return redirect('/')
-
-
-
 
 @app.route('/admin/leads')
 def view_leads():
